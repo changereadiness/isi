@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Change Readiness Checkpoint — Private</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #fff;
+      color: #111;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 80px auto;
+      padding: 0 24px;
+    }
+
+    h1, h2 { font-weight: 500; }
+
+    p { line-height: 1.6; margin-bottom: 28px; }
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 20px;
+      border: 1px solid #e5e5e5;
+      margin-bottom: 16px;
+    }
+
+    .item input {
+      margin-top: 4px;
+      transform: scale(1.2);
+    }
+
+    button {
+      padding: 14px 22px;
+      font-size: 15px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: #111;
+      margin-left: 12px;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .center { text-align: center; margin: 48px 0; }
+
+    .hidden { display: none; }
+
+    .signal {
+      padding: 28px;
+      border-radius: 6px;
+      white-space: pre-line;
+    }
+
+    .high { background: #fbeaea; color: #8a1f1f; }
+    .moderate { background: #fff4e5; color: #8a5a1f; }
+    .low { background: #eef6ee; color: #1f6b2e; }
+
+    .quiet {
+      font-size: 13px;
+      color: #666;
+      margin-top: 48px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    a { color: #111; text-decoration: underline; }
+  </style>
+</head>
+
+<body>
+
+<!-- ACCESS -->
+<div id="access" class="container">
+  <h2>Private Access</h2>
+  <input type="password" id="code" placeholder="One-time access code" />
+  <button onclick="enter()">Continue</button>
+  <p id="err" class="quiet hidden">Invalid or used access code.</p>
+</div>
+
+<!-- CHECKPOINT -->
+<div id="checkpoint" class="container hidden">
+
+  <h1>Change Readiness Checkpoint</h1>
+  <p>Select the statements that reflect reality today.</p>
+
+  <div class="item"><input type="checkbox" />Strategic intent is clearly understood by leadership.</div>
+  <div class="item"><input type="checkbox" />Decision authority is unambiguous.</div>
+  <div class="item"><input type="checkbox" />Comparable change has been absorbed before.</div>
+  <div class="item"><input type="checkbox" />Stakeholders align on outcomes.</div>
+  <div class="item"><input type="checkbox" />Resistance is visible and acknowledged.</div>
+  <div class="item"><input type="checkbox" />Leaders model the change.</div>
+  <div class="item"><input type="checkbox" />Communication channels are trusted.</div>
+  <div class="item"><input type="checkbox" />Capacity constraints are realistic.</div>
+  <div class="item"><input type="checkbox" />Cost of inaction is understood.</div>
+  <div class="item"><input type="checkbox" />Ownership exists beyond executives.</div>
+
+  <div class="center">
+    <button id="reveal" onclick="reveal()">Reveal checkpoint</button>
+  </div>
+
+  <div id="result" class="hidden">
+    <div id="signal" class="signal"></div>
+
+    <p>
+      To discuss this signal, connect on LinkedIn:<br />
+      <a href="https://linkedin.com/in/sayudi" target="_blank">linkedin.com/in/sayudi</a>
+    </p>
+
+    <div class="center">
+      <button class="secondary" onclick="reset()">Restart</button>
+    </div>
+  </div>
+
+  <p class="quiet">Private diagnostic. Not a survey.</p>
+</div>
+
+<script>
+  const CODES = ["MRLD-001", "MRLD-002", "MRLD-003"];
+  const USED = "used_codes";
+
+  function enter() {
+    const code = document.getElementById("code").value.trim();
+    const used = JSON.parse(localStorage.getItem(USED) || "[]");
+
+    if (CODES.includes(code) && !used.includes(code)) {
+      used.push(code);
+      localStorage.setItem(USED, JSON.stringify(used));
+      document.getElementById("access").classList.add("hidden");
+      document.getElementById("checkpoint").classList.remove("hidden");
+    } else {
+      document.getElementById("err").classList.remove("hidden");
+    }
+  }
+
+  function reveal() {
+    const count = document.querySelectorAll('input[type="checkbox"]:checked').length;
+    const box = document.getElementById("signal");
+
+    if (count <= 5) {
+      box.className = "signal high";
+      box.innerText = "⚠️ High risk\n\nFoundational conditions are missing.";
+    } else if (count <= 9) {
+      box.className = "signal moderate";
+      box.innerText = "◼︎ Moderate risk\n\nThis is where initiatives derail.";
+    } else {
+      box.className = "signal low";
+      box.innerText = "✓ Looking good\n\nRisk now hides in second-order variables.";
+    }
+
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function reset() {
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+    document.getElementById("result").classList.add("hidden");
+  }
+</script>
+
+</body>
+</html>
