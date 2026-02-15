@@ -1,177 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISI – Internal Sovereign Index</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Initiative Stability Index (ISI) — V0</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: #0f1115;
-        color: #e6e6e6;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 40px;
+    color: #1a1a1a;
+}
 
-    .container {
-        max-width: 1100px;
-        margin: 60px auto;
-        padding: 0 20px;
-    }
+h1, h2 {
+    font-weight: 600;
+}
 
-    h1 {
-        font-size: 32px;
-        margin-bottom: 8px;
-        letter-spacing: 1px;
-    }
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
 
-    .subtitle {
-        opacity: 0.6;
-        margin-bottom: 40px;
-    }
+.section {
+    margin-bottom: 40px;
+}
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-    }
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+}
 
-    .card {
-        background: #171a21;
-        border: 1px solid #242833;
-        border-radius: 14px;
-        padding: 24px;
-        transition: 0.2s ease;
-    }
+input[type=number] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
 
-    .card:hover {
-        border-color: #3d4456;
-    }
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    background: #1a1a1a;
+    color: white;
+    cursor: pointer;
+}
 
-    .card h3 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        font-size: 18px;
-        letter-spacing: 0.5px;
-    }
+button.secondary {
+    background: #666;
+}
 
-    .score {
-        font-size: 36px;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
+.result-box {
+    padding: 20px;
+    margin-top: 20px;
+    background: #f0f2f5;
+    border-radius: 6px;
+}
 
-    .bar {
-        height: 8px;
-        background: #222734;
-        border-radius: 6px;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
+.band {
+    font-size: 20px;
+    font-weight: 600;
+}
 
-    .fill {
-        height: 100%;
-        background: #6c8cff;
-        width: 72%;
-    }
-
-    .note {
-        font-size: 13px;
-        opacity: 0.5;
-    }
-
-    .overall {
-        margin-top: 60px;
-        padding: 30px;
-        border-radius: 18px;
-        background: #141822;
-        border: 1px solid #2c3344;
-        text-align: center;
-    }
-
-    .overall h2 {
-        margin: 0 0 10px 0;
-    }
-
-    .overall-score {
-        font-size: 48px;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    footer {
-        margin-top: 60px;
-        font-size: 12px;
-        opacity: 0.4;
-        text-align: center;
-    }
+.small {
+    font-size: 13px;
+    color: #555;
+}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-    <h1>Internal Sovereign Index</h1>
-    <div class="subtitle">Version 0.1 – Internal Diagnostic Snapshot</div>
+<h1>Initiative Stability Index (ISI)</h1>
+<p class="small">Quarterly Stability Instrument — V0 Prototype</p>
 
-    <div class="grid">
+<div class="section">
+<label>Initiative Name</label>
+<input type="text" id="initiativeName" placeholder="Enter initiative name" />
+</div>
 
-        <div class="card">
-            <h3>Cognitive Clarity</h3>
-            <div class="score">72</div>
-            <div class="bar"><div class="fill" style="width:72%"></div></div>
-            <div class="note">Signal vs noise ratio</div>
-        </div>
+<div class="section">
+<h2>Vector Scoring (0–100)</h2>
 
-        <div class="card">
-            <h3>Emotional Regulation</h3>
-            <div class="score">81</div>
-            <div class="bar"><div class="fill" style="width:81%"></div></div>
-            <div class="note">Stability under volatility</div>
-        </div>
+<label>Engagement</label>
+<input type="number" id="engagement" min="0" max="100" />
 
-        <div class="card">
-            <h3>Physical Discipline</h3>
-            <div class="score">76</div>
-            <div class="bar"><div class="fill" style="width:76%"></div></div>
-            <div class="note">Training, sleep, nutrition</div>
-        </div>
+<label>Decision Latency</label>
+<input type="number" id="decision" min="0" max="100" />
 
-        <div class="card">
-            <h3>Strategic Direction</h3>
-            <div class="score">64</div>
-            <div class="bar"><div class="fill" style="width:64%"></div></div>
-            <div class="note">Long-term coherence</div>
-        </div>
+<label>Leadership Signal Coherence</label>
+<input type="number" id="leadership" min="0" max="100" />
 
-        <div class="card">
-            <h3>Financial Stability</h3>
-            <div class="score">58</div>
-            <div class="bar"><div class="fill" style="width:58%"></div></div>
-            <div class="note">Autonomy runway</div>
-        </div>
+<label>Delivery Readiness</label>
+<input type="number" id="readiness" min="0" max="100" />
 
-        <div class="card">
-            <h3>Relational Integrity</h3>
-            <div class="score">70</div>
-            <div class="bar"><div class="fill" style="width:70%"></div></div>
-            <div class="note">Depth over volume</div>
-        </div>
+<label>Governance Friction</label>
+<input type="number" id="governance" min="0" max="100" />
 
-    </div>
+<label>Execution Fatigue</label>
+<input type="number" id="fatigue" min="0" max="100" />
 
-    <div class="overall">
-        <h2>Overall ISI Score</h2>
-        <div class="overall-score">70</div>
-        <div class="note">Weighted composite across 6 pillars</div>
-    </div>
+<button onclick="calculateISI()">Run Interim Diagnostic (Non-Recorded)</button>
+<button onclick="recordPulse()">Submit Official Quarterly Pulse</button>
 
-    <footer>
-        ISI Prototype – Internal Use Only – © 2026
-    </footer>
+<div id="results" class="result-box" style="display:none;"></div>
+</div>
+
+<div class="section">
+<h2>Pulse History</h2>
+<div id="history"></div>
+</div>
 
 </div>
 
+<script>
+
+const weights = {
+    engagement: 1,
+    decision: 1,
+    leadership: 1,
+    readiness: 1,
+    governance: 1,
+    fatigue: 1
+};
+
+function getScores() {
+    return {
+        engagement: parseFloat(document.getElementById("engagement").value),
+        decision: parseFloat(document.getElementById("decision").value),
+        leadership: parseFloat(document.getElementById("leadership").value),
+        readiness: parseFloat(document.getElementById("readiness").value),
+        governance: parseFloat(document.getElementById("governance").value),
+        fatigue: parseFloat(document.getElementById("fatigue").value)
+    };
+}
+
+function computeComposite(scores) {
+    let total = 0;
+    let weightSum = 0;
+
+    for (let key in scores) {
+        total += scores[key] * weights[key];
+        weightSum += weights[key];
+    }
+
+    return Math.round(total / weightSum);
+}
+
+function classifyBand(score) {
+    if (score >= 80) return "Stable";
+    if (score >= 70) return "Monitoring";
+    if (score >= 60) return "Pressured";
+    return "At Risk";
+}
+
+function classifyTrend(history) {
+    if (history.length < 2) return "Insufficient Data";
+
+    const last = history[history.length - 1].score;
+    const prev = history[history.length - 2].score;
+
+    const delta = last - prev;
+
+    if (Math.abs(delta) > 15) return "Volatile";
+    if (delta > 0) return "Stabilizing";
+    if (delta < 0) return "Degrading";
+    return "Stable";
+}
+
+function detectVolatility(history) {
+    if (history.length < 2) return false;
+
+    const last = history[history.length - 1].score;
+    const prev = history[history.length - 2].score;
+
+    const percentChange = Math.abs((last - prev) / prev) * 100;
+    return percentChange > 15;
+}
+
+function calculateISI() {
+    const scores = getScores();
+    const composite = computeComposite(scores);
+    const band = classifyBand(composite);
+
+    document.getElementById("results").style.display = "block";
+    document.getElementById("results").innerHTML = `
+        <div class="band">ISI: ${composite} — ${band}</div>
+        <p>Interim diagnostic complete. This pulse is not recorded.</p>
+    `;
+}
+
+function recordPulse() {
+    const name = document.getElementById("initiativeName").value;
+    if (!name) {
+        alert("Enter initiative name.");
+        return;
+    }
+
+    const scores = getScores();
+    const composite = computeComposite(scores);
+    const band = classifyBand(composite);
+
+    let history = JSON.parse(localStorage.getItem(name)) || [];
+    history.push({
+        date: new Date().toLocaleDateString(),
+        score: composite,
+        band: band
+    });
+
+    localStorage.setItem(name, JSON.stringify(history));
+
+    const trend = classifyTrend(history);
+    const volatile = detectVolatility(history);
+
+    document.getElementById("results").style.display = "block";
+    document.getElementById("results").innerHTML = `
+        <div class="band">ISI: ${composite} — ${band}</div>
+        <p>Stability Trajectory: ${trend}</p>
+        ${volatile ? "<p><strong>Volatile Trend Detected</strong></p>" : ""}
+        <p>Official Quarterly Pulse recorded.</p>
+    `;
+
+    renderHistory(name);
+}
+
+function renderHistory(name) {
+    const history = JSON.parse(localStorage.getItem(name)) || [];
+    let html = "";
+
+    history.forEach(pulse => {
+        html += `
+            <div class="result-box">
+                <strong>${pulse.date}</strong><br/>
+                ISI: ${pulse.score} — ${pulse.band}
+            </div>
+        `;
+    });
+
+    document.getElementById("history").innerHTML = html;
+}
+
+</script>
 </body>
 </html>
