@@ -2,49 +2,71 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Initiative Stability Index (ISI) – V0</title>
+<title>Initiative Stability Index (ISI)</title>
+
 <style>
-body { font-family: Arial, sans-serif; margin: 40px; background: #f4f6f9; }
-h1 { font-weight: 600; }
-input[type="text"] { width: 300px; padding: 6px; }
+body { font-family: Arial, sans-serif; margin: 40px; background: #f4f6f9; display: flex; }
+.main { flex: 3; margin-right: 40px; }
+.side { flex: 1; background: white; padding: 20px; border-radius: 6px; height: fit-content; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
 .vector { background: white; padding: 20px; margin-bottom: 25px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);}
-.question { margin-bottom: 15px; }
+.question { margin-bottom: 12px; }
 textarea { width: 100%; height: 40px; }
-.score { font-weight: bold; margin-top: 10px; }
+input[type="number"] { width: 60px; }
 .scale { font-size: 12px; color: #666; display: none; margin-top: 5px; }
-button { font-size: 11px; margin-left: 8px; }
-.overall { background: #e6ebf2; padding: 20px; font-size: 18px; border-radius: 6px; margin-top: 20px; }
-.small { font-size: 12px; color: #666; }
 .heat-box { width: 100%; height: 8px; border-radius: 4px; margin-top: 8px; background: #ddd; }
+.overall { background: #e6ebf2; padding: 20px; font-size: 18px; border-radius: 6px; margin-top: 20px; }
+.alert { color: #b30000; font-weight: bold; margin-top: 10px; }
+button { margin-top: 10px; }
+@media print {
+.side, button { display: none; }
+body { margin: 0; }
+}
 </style>
 </head>
 <body>
 
+<div class="main">
+
 <h1>Initiative Stability Index (ISI)</h1>
 
 <label><strong>Initiative Name:</strong></label><br>
-<input type="text" placeholder="Enter initiative name"><br><br>
-
-<p class="small">Completion target: 15–20 minutes | 5-point calibrated scale</p>
+<input type="text" id="initiativeName"><br><br>
 
 <div id="vectors"></div>
 
 <div class="overall">
 Overall ISI Score: <span id="overallScore">0.00</span><br>
 Stability Indicator: <span id="stabilityLabel">—</span>
+<div id="volatilityAlert" class="alert"></div>
+</div>
+
+<button onclick="captureBaseline()">Capture Baseline (Quarter Snapshot)</button>
+<button onclick="window.print()">Export to PDF</button>
+
+</div>
+
+<div class="side">
+<h3>Vector Comparison</h3>
+<div id="comparisonPanel"></div>
+<div style="margin-top:20px;">
+<strong>Baseline Timestamp:</strong>
+<div id="baselineTime">None</div>
+</div>
 </div>
 
 <script>
 
 const scaleDefinition = `
-5 = Stable / Strongly Reinforcing  
-4 = Mostly Stable / Minor Friction  
-3 = Emerging Instability  
-2 = Material Friction / Noticeable Drift  
+5 = Stable / Strongly Reinforcing
+4 = Mostly Stable / Minor Friction
+3 = Emerging Instability
+2 = Material Friction
 1 = Structurally Unstable
 `;
 
-const vectors = [
+let baselineData = null;
+
+const vectors = [ /* SAME 6 VECTORS + 30 QUESTIONS AS PREVIOUS VERSION */
 {
 name: "Strategic Alignment Integrity",
 questions: [
@@ -113,36 +135,27 @@ vectors.forEach((vector, vIndex) => {
 
 let div = document.createElement("div");
 div.className = "vector";
-div.id = `vectorBox${vIndex}`;
 
 div.innerHTML = `<h2>Vector ${vIndex+1}: ${vector.name}</h2>`;
 
 vector.questions.forEach((q, qIndex) => {
 div.innerHTML += `
 <div class="question">
-<p>${q} 
-<button onclick="toggleScale('scale${vIndex}${qIndex}')">Scale</button>
-</p>
-
-<input type="number" min="1" max="5" value="3" 
-onchange="calculateScores()" 
+<p>${q} <button onclick="toggleScale('scale${vIndex}${qIndex}')">Scale</button></p>
+<input type="number" min="1" max="5" value="3"
+onchange="calculateScores()"
 id="v${vIndex}q${qIndex}">
-
 <div class="scale" id="scale${vIndex}${qIndex}">
 ${scaleDefinition}
 </div>
-
-<br>
 <textarea placeholder="Optional evidence"></textarea>
 </div>
 `;
 });
 
 div.innerHTML += `
-<div class="score">
-Vector Score: <span id="vectorScore${vIndex}">0.00</span>
+<strong>Vector Score: <span id="vectorScore${vIndex}">0.00</span></strong>
 <div class="heat-box" id="heat${vIndex}"></div>
-</div>
 `;
 
 container.appendChild(div);
@@ -155,9 +168,12 @@ el.style.display = el.style.display === "none" ? "block" : "none";
 }
 
 function calculateScores() {
+
 let overallTotal = 0;
+let vectorResults = [];
 
 vectors.forEach((vector, vIndex) => {
+
 let vectorTotal = 0;
 
 vector.questions.forEach((q, qIndex) => {
@@ -165,14 +181,15 @@ let value = parseFloat(document.getElementById(`v${vIndex}q${qIndex}`).value) ||
 vectorTotal += value;
 });
 
-let vectorAvg = vectorTotal / vector.questions.length;
-document.getElementById(`vectorScore${vIndex}`).innerText = vectorAvg.toFixed(2);
-overallTotal += vectorAvg;
+let avg = vectorTotal / vector.questions.length;
+vectorResults.push({ name: vector.name, score: avg });
 
-// Heat visualization
-let heat = document.getElementById(`heat${vIndex}`);
-let intensity = (vectorAvg / 5);
-heat.style.background = `rgba(0, 102, 204, ${intensity})`;
+document.getElementById(`vectorScore${vIndex}`).innerText = avg.toFixed(2);
+document.getElementById(`heat${vIndex}`).style.background =
+`rgba(0, 70, 140, ${avg/5})`;
+
+overallTotal += avg;
+
 });
 
 let overallAvg = overallTotal / vectors.length;
@@ -183,6 +200,48 @@ if (overallAvg < 3.5) label = "Pressured";
 if (overallAvg < 2.5) label = "At Risk";
 
 document.getElementById("stabilityLabel").innerText = label;
+
+updateComparison(vectorResults);
+checkVolatility(vectorResults);
+
+}
+
+function updateComparison(results) {
+results.sort((a,b)=>b.score-a.score);
+let panel = document.getElementById("comparisonPanel");
+panel.innerHTML = "";
+results.forEach(r=>{
+panel.innerHTML += `<div>${r.name}: ${r.score.toFixed(2)}</div>`;
+});
+}
+
+function captureBaseline() {
+let scores = [];
+vectors.forEach((v,i)=>{
+scores.push(parseFloat(document.getElementById(`vectorScore${i}`).innerText));
+});
+baselineData = {
+timestamp: new Date(),
+scores: scores
+};
+document.getElementById("baselineTime").innerText = baselineData.timestamp.toLocaleString();
+}
+
+function checkVolatility(currentResults) {
+
+if (!baselineData) return;
+
+let alert = "";
+currentResults.forEach((r,i)=>{
+let baselineScore = baselineData.scores[i];
+let drop = (baselineScore - r.score) / baselineScore;
+if (drop > 0.10) {
+alert = "Volatile Trend Detected";
+}
+});
+
+document.getElementById("volatilityAlert").innerText = alert;
+
 }
 
 calculateScores();
