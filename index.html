@@ -2,262 +2,154 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Initiative Stability Index (ISI)</title>
+<title>Initiative Stability Index (ISI) – V0</title>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    padding: 40px;
-    color: #1a1a1a;
-}
-.container {
-    max-width: 1000px;
-    margin: auto;
-    background: white;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-}
-h1, h2 {
-    font-weight: 600;
-}
-.section {
-    margin-bottom: 40px;
-}
-.question {
-    margin-bottom: 15px;
-}
-select {
-    width: 100%;
-    padding: 6px;
-}
-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #1a1a1a;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-.result-box {
-    padding: 20px;
-    background: #f0f2f5;
-    border-radius: 6px;
-    margin-top: 20px;
-}
-.small {
-    font-size: 13px;
-    color: #555;
-}
-.band {
-    font-size: 20px;
-    font-weight: bold;
-}
+body { font-family: Arial, sans-serif; margin: 40px; background: #f7f9fb; }
+h1 { font-weight: 600; }
+.vector { background: white; padding: 20px; margin-bottom: 25px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);}
+.question { margin-bottom: 15px; }
+.score { font-weight: bold; margin-top: 10px; }
+input[type="number"] { width: 60px; }
+textarea { width: 100%; height: 40px; }
+.overall { background: #e9eef3; padding: 20px; font-size: 18px; border-radius: 6px; }
+.small { font-size: 12px; color: #666; }
 </style>
 </head>
 <body>
 
-<div class="container">
 <h1>Initiative Stability Index (ISI)</h1>
-<p class="small">Quarterly Stability Instrument — V0.2</p>
-
-<label>Initiative Name</label>
-<input type="text" id="initiativeName" style="width:100%; padding:8px;">
+<p class="small">Completion target: 15–20 minutes | 5-point calibrated scale (1 = unstable, 5 = stable)</p>
 
 <div id="vectors"></div>
 
-<button onclick="calculateISI(false)">Run Interim Diagnostic (Non-Recorded)</button>
-<button onclick="calculateISI(true)">Submit Official Quarterly Pulse</button>
-
-<div id="results" class="result-box" style="display:none;"></div>
-
-<h2>Pulse History</h2>
-<div id="history"></div>
-
+<div class="overall">
+Overall ISI Score: <span id="overallScore">0.00</span><br>
+Stability Indicator: <span id="stabilityLabel">—</span>
 </div>
 
 <script>
 
-const vectorDefinitions = {
-    "Engagement": [
-        "To what degree are key stakeholder groups actively supporting the initiative?",
-        "Is resistance localized or spreading across impacted teams?",
-        "Are frontline behaviors aligning with intended change direction?"
-    ],
-    "Decision Latency": [
-        "Are critical decisions being made within expected governance timeframes?",
-        "Is rework occurring due to delayed or unclear decisions?",
-        "Are escalation paths functioning without friction?"
-    ],
-    "Leadership Signal Coherence": [
-        "Are senior leaders consistently reinforcing the same priorities?",
-        "Is messaging aligned across executive and middle management layers?",
-        "Are trade-offs being communicated transparently?"
-    ],
-    "Delivery Readiness": [
-        "Are required capabilities in place to execute the next phase?",
-        "Are resources allocated realistically against scope?",
-        "Is implementation sequencing coherent?"
-    ],
-    "Governance Friction": [
-        "Are governance forums enabling progress rather than slowing it?",
-        "Are accountabilities clearly defined and respected?",
-        "Is oversight proportionate to initiative risk?"
-    ],
-    "Execution Fatigue": [
-        "Are teams demonstrating sustained energy for delivery?",
-        "Is change saturation impacting performance quality?",
-        "Are recovery mechanisms in place to prevent burnout?"
-    ]
-};
+const vectors = [
+{
+name: "Strategic Alignment Integrity",
+questions: [
+"In the past 30 days, how consistently have executive sponsors articulated the same strategic rationale for this initiative?",
+"How frequently have strategic decisions reinforced (rather than diluted) the initiative’s stated objectives?",
+"To what extent are business unit priorities visibly aligned with this initiative?",
+"How stable is the initiative’s scope compared to baseline definition?",
+"How clearly can mid-level leaders articulate the “why” behind this initiative?"
+]
+},
+{
+name: "Leadership Reinforcement Consistency",
+questions: [
+"How frequently have primary sponsors referenced the initiative in formal forums over the last 30 days?",
+"To what extent are leaders modeling the expected new behaviors?",
+"How often is progress on the initiative reviewed in leadership meetings?",
+"When resistance emerges, how consistently do leaders intervene to reinforce direction?",
+"Have any senior leaders signaled ambiguity about commitment to the initiative?"
+]
+},
+{
+name: "Stakeholder & Power Friction",
+questions: [
+"Have key stakeholder groups experienced a loss of influence, control, or status due to this initiative?",
+"How openly are concerns being surfaced by impacted groups?",
+"Have any informal influencers expressed skepticism in the past 30 days?",
+"To what extent are stakeholder incentives aligned with desired outcomes?",
+"Are escalation channels being used constructively?"
+]
+},
+{
+name: "Capability & Capacity Sufficiency",
+questions: [
+"Over the past 30 days, how adequate has the dedicated capacity been for advancing this initiative?",
+"To what extent do key delivery roles possess the required skills to execute their responsibilities?",
+"How frequently are initiative team members diverted to competing priorities?",
+"Is there clear ownership for all critical workstreams?",
+"How sustainable is the current execution pace over the next 90 days?"
+]
+},
+{
+name: "Delivery Design Robustness",
+questions: [
+"How realistic are current milestone timelines relative to complexity?",
+"To what extent are dependencies across workstreams actively managed?",
+"How often are risks formally reviewed and mitigated?",
+"How clearly defined are success criteria for the next 90 days?",
+"If a key assumption fails, how prepared is the team to adapt?"
+]
+},
+{
+name: "Adoption Momentum",
+questions: [
+"To what extent are target users consistently applying the new processes or behaviors?",
+"How frequently do teams revert to legacy practices?",
+"Are adoption metrics (formal or informal) reviewed regularly?",
+"How confident are frontline managers in coaching the new behaviors?",
+"Is visible progress reinforcing continued adoption?"
+]
+}
+];
 
-const scaleOptions = `
-<option value="">Select</option>
-<option value="1">1 — Material Instability</option>
-<option value="2">2 — Significant Weakness</option>
-<option value="3">3 — Moderate Stability</option>
-<option value="4">4 — Strong Stability</option>
-<option value="5">5 — High Stability</option>
+const container = document.getElementById("vectors");
+
+vectors.forEach((vector, vIndex) => {
+
+let div = document.createElement("div");
+div.className = "vector";
+div.innerHTML = `<h2>Vector ${vIndex+1}: ${vector.name}</h2>`;
+
+vector.questions.forEach((q, qIndex) => {
+div.innerHTML += `
+<div class="question">
+<p>${q}</p>
+Score (1–5): 
+<input type="number" min="1" max="5" value="3" 
+onchange="calculateScores()" 
+id="v${vIndex}q${qIndex}">
+<br>
+Evidence (optional):
+<textarea placeholder="Optional evidence"></textarea>
+</div>
 `;
+});
 
-function renderQuestions() {
-    const container = document.getElementById("vectors");
-    let html = "";
+div.innerHTML += `<div class="score">Vector Score: <span id="vectorScore${vIndex}">0.00</span></div>`;
 
-    for (let vector in vectorDefinitions) {
-        html += `<div class="section"><h2>${vector}</h2>`;
-        vectorDefinitions[vector].forEach((q, index) => {
-            html += `
-                <div class="question">
-                    <label>${q}</label>
-                    <select data-vector="${vector}">
-                        ${scaleOptions}
-                    </select>
-                </div>
-            `;
-        });
-        html += `</div>`;
-    }
+container.appendChild(div);
 
-    container.innerHTML = html;
+});
+
+function calculateScores() {
+let overallTotal = 0;
+
+vectors.forEach((vector, vIndex) => {
+let vectorTotal = 0;
+
+vector.questions.forEach((q, qIndex) => {
+let value = parseFloat(document.getElementById(`v${vIndex}q${qIndex}`).value) || 0;
+vectorTotal += value;
+});
+
+let vectorAvg = vectorTotal / vector.questions.length;
+document.getElementById(`vectorScore${vIndex}`).innerText = vectorAvg.toFixed(2);
+overallTotal += vectorAvg;
+});
+
+let overallAvg = overallTotal / vectors.length;
+document.getElementById("overallScore").innerText = overallAvg.toFixed(2);
+
+let label = "Stable";
+if (overallAvg < 3.5) label = "Pressured";
+if (overallAvg < 2.5) label = "At Risk";
+
+document.getElementById("stabilityLabel").innerText = label;
 }
 
-function computeVectorScores() {
-    const selects = document.querySelectorAll("select");
-    let vectorScores = {};
-
-    for (let vector in vectorDefinitions) {
-        vectorScores[vector] = [];
-    }
-
-    selects.forEach(select => {
-        const vector = select.getAttribute("data-vector");
-        const value = parseInt(select.value);
-        if (!isNaN(value)) {
-            vectorScores[vector].push(value);
-        }
-    });
-
-    let normalized = {};
-
-    for (let vector in vectorScores) {
-        const scores = vectorScores[vector];
-        if (scores.length === 0) return null;
-
-        const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
-        normalized[vector] = Math.round((avg / 5) * 100);
-    }
-
-    return normalized;
-}
-
-function computeComposite(vectorScores) {
-    const values = Object.values(vectorScores);
-    return Math.round(values.reduce((a,b)=>a+b,0)/values.length);
-}
-
-function classifyBand(score) {
-    if (score >= 80) return "Stable";
-    if (score >= 70) return "Monitoring";
-    if (score >= 60) return "Pressured";
-    return "At Risk";
-}
-
-function classifyTrend(history) {
-    if (history.length < 2) return "Insufficient Data";
-    const last = history[history.length-1].score;
-    const prev = history[history.length-2].score;
-    const delta = last - prev;
-
-    if (Math.abs(delta) > 15) return "Volatile";
-    if (delta > 0) return "Stabilizing";
-    if (delta < 0) return "Degrading";
-    return "Stable";
-}
-
-function calculateISI(record) {
-    const name = document.getElementById("initiativeName").value;
-    if (!name) {
-        alert("Enter initiative name.");
-        return;
-    }
-
-    const vectorScores = computeVectorScores();
-    if (!vectorScores) {
-        alert("Complete all questions.");
-        return;
-    }
-
-    const composite = computeComposite(vectorScores);
-    const band = classifyBand(composite);
-
-    let history = JSON.parse(localStorage.getItem(name)) || [];
-
-    if (record) {
-        history.push({
-            date: new Date().toLocaleDateString(),
-            score: composite,
-            band: band
-        });
-        localStorage.setItem(name, JSON.stringify(history));
-    }
-
-    const trend = classifyTrend(history);
-    const volatile = history.length > 1 &&
-        Math.abs(history[history.length-1].score - history[history.length-2].score) > 15;
-
-    document.getElementById("results").style.display = "block";
-    document.getElementById("results").innerHTML = `
-        <div class="band">ISI: ${composite} — ${band}</div>
-        <p>Stability Trajectory: ${trend}</p>
-        ${volatile ? "<p><strong>Volatile Trend Detected</strong></p>" : ""}
-        <hr>
-        <strong>Vector Scores</strong><br>
-        ${Object.entries(vectorScores).map(([k,v])=>`${k}: ${v}`).join("<br>")}
-        <p class="small">${record ? "Official Quarterly Pulse recorded." : "Interim diagnostic complete (not recorded)."}</p>
-    `;
-
-    renderHistory(name);
-}
-
-function renderHistory(name) {
-    const history = JSON.parse(localStorage.getItem(name)) || [];
-    let html = "";
-
-    history.forEach(p => {
-        html += `
-            <div class="result-box">
-                <strong>${p.date}</strong><br>
-                ISI: ${p.score} — ${p.band}
-            </div>
-        `;
-    });
-
-    document.getElementById("history").innerHTML = html;
-}
-
-renderQuestions();
+calculateScores();
 
 </script>
+
 </body>
 </html>
