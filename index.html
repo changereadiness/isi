@@ -4,21 +4,28 @@
 <meta charset="UTF-8">
 <title>Initiative Stability Index (ISI) – V0</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 40px; background: #f7f9fb; }
+body { font-family: Arial, sans-serif; margin: 40px; background: #f4f6f9; }
 h1 { font-weight: 600; }
-.vector { background: white; padding: 20px; margin-bottom: 25px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);}
+input[type="text"] { width: 300px; padding: 6px; }
+.vector { background: white; padding: 20px; margin-bottom: 25px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);}
 .question { margin-bottom: 15px; }
-.score { font-weight: bold; margin-top: 10px; }
-input[type="number"] { width: 60px; }
 textarea { width: 100%; height: 40px; }
-.overall { background: #e9eef3; padding: 20px; font-size: 18px; border-radius: 6px; }
+.score { font-weight: bold; margin-top: 10px; }
+.scale { font-size: 12px; color: #666; display: none; margin-top: 5px; }
+button { font-size: 11px; margin-left: 8px; }
+.overall { background: #e6ebf2; padding: 20px; font-size: 18px; border-radius: 6px; margin-top: 20px; }
 .small { font-size: 12px; color: #666; }
+.heat-box { width: 100%; height: 8px; border-radius: 4px; margin-top: 8px; background: #ddd; }
 </style>
 </head>
 <body>
 
 <h1>Initiative Stability Index (ISI)</h1>
-<p class="small">Completion target: 15–20 minutes | 5-point calibrated scale (1 = unstable, 5 = stable)</p>
+
+<label><strong>Initiative Name:</strong></label><br>
+<input type="text" placeholder="Enter initiative name"><br><br>
+
+<p class="small">Completion target: 15–20 minutes | 5-point calibrated scale</p>
 
 <div id="vectors"></div>
 
@@ -28,6 +35,14 @@ Stability Indicator: <span id="stabilityLabel">—</span>
 </div>
 
 <script>
+
+const scaleDefinition = `
+5 = Stable / Strongly Reinforcing  
+4 = Mostly Stable / Minor Friction  
+3 = Emerging Instability  
+2 = Material Friction / Noticeable Drift  
+1 = Structurally Unstable
+`;
 
 const vectors = [
 {
@@ -98,28 +113,46 @@ vectors.forEach((vector, vIndex) => {
 
 let div = document.createElement("div");
 div.className = "vector";
+div.id = `vectorBox${vIndex}`;
+
 div.innerHTML = `<h2>Vector ${vIndex+1}: ${vector.name}</h2>`;
 
 vector.questions.forEach((q, qIndex) => {
 div.innerHTML += `
 <div class="question">
-<p>${q}</p>
-Score (1–5): 
+<p>${q} 
+<button onclick="toggleScale('scale${vIndex}${qIndex}')">Scale</button>
+</p>
+
 <input type="number" min="1" max="5" value="3" 
 onchange="calculateScores()" 
 id="v${vIndex}q${qIndex}">
+
+<div class="scale" id="scale${vIndex}${qIndex}">
+${scaleDefinition}
+</div>
+
 <br>
-Evidence (optional):
 <textarea placeholder="Optional evidence"></textarea>
 </div>
 `;
 });
 
-div.innerHTML += `<div class="score">Vector Score: <span id="vectorScore${vIndex}">0.00</span></div>`;
+div.innerHTML += `
+<div class="score">
+Vector Score: <span id="vectorScore${vIndex}">0.00</span>
+<div class="heat-box" id="heat${vIndex}"></div>
+</div>
+`;
 
 container.appendChild(div);
 
 });
+
+function toggleScale(id){
+let el = document.getElementById(id);
+el.style.display = el.style.display === "none" ? "block" : "none";
+}
 
 function calculateScores() {
 let overallTotal = 0;
@@ -135,6 +168,11 @@ vectorTotal += value;
 let vectorAvg = vectorTotal / vector.questions.length;
 document.getElementById(`vectorScore${vIndex}`).innerText = vectorAvg.toFixed(2);
 overallTotal += vectorAvg;
+
+// Heat visualization
+let heat = document.getElementById(`heat${vIndex}`);
+let intensity = (vectorAvg / 5);
+heat.style.background = `rgba(0, 102, 204, ${intensity})`;
 });
 
 let overallAvg = overallTotal / vectors.length;
